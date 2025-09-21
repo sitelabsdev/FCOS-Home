@@ -1,0 +1,44 @@
+name: Publish packages
+on:
+  push:
+    tags:
+    - fedora-coreos-*_zfs-*
+    paths:
+    - 'ersa/Containerfile'
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+jobs:
+  zfs-build-args:
+    runs-on: ubuntu-24.04
+    steps:
+    - id: generate-build-args
+      run: |
+        if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+          # Tag-based build
+          BASE_IMAGE="${GITHUB_REF_NAME%%_*}"
+          BASE_IMAGE_VERSION="${BASE_IMAGE#fedora-coreos-}"
+          ZFS_VERSION="${GITHUB_REF_NAME#*zfs-}"
+          printf 'BUILD_ARGS<<EOF\nBASE_IMAGE_VERSION=%s\nZFS_VERSION=%s\nEOF\n' "$BASE_IMAGE_VERSION" "$ZFS_VERSION" >>"$GITHUB_OUTPUT"
+        else
+          # Path-based build - use latest versions
+          BASE_IMAGE_VERSION="$(curl https://builds.coreos.fedoraproject.org/streams/stable.json --silent | jq -r '.architectures.x86_64.artifacts.metal.release')"
+          ZFS_URL="$(curl --head https://github.com/openzfs/zfs/releases/latest --output /dev/null --silent --write-out '%{redirect_url}')"
+          ZFS_VERSION="${ZFS_URL##*zfs-}"
+          printf 'BUILD_ARGS<<EOF\nBASE_IMAGE_VERSION=%s\nZFS_VERSION=%s\nEOF\n' "$BASE_IMAGE_VERSION" "$ZFS_VERSION" >>"$GITHUB_OUTPUT"
+        fi
+    outputs:
+      build-args: ${{ steps.generate-build-args.outputs.BUILD_ARGS }}
+  
+  zfs-x86_64:
+    needs: zfs-build-args
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      runs-on: ubuntu-24.04
+      package: zfs
+      build-args: ${{ needs.zfs-build-args.outputs.build-args }}
+    secrets: inherit
