@@ -39,6 +39,6 @@ jobs:
     uses: ./.github/workflows/publish-package.yml
     with:
       runs-on: ubuntu-24.04
-      package: zfs
+      package: ersa
       build-args: ${{ needs.zfs-build-args.outputs.build-args }}
     secrets: inherit
