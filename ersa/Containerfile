@@ -76,6 +76,8 @@ RUN rm --verbose --force \
 RUN rpm-ostree install -y \
     zsh \
     atuin \
-    && rm --recursive /var/cache 
+    podman-compose
+
+RUN rm --recursive /var/cache 
 
 RUN ostree container commit
