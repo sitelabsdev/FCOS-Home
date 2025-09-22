@@ -3,8 +3,10 @@ on:
   push:
     tags:
     - fedora-coreos-*_zfs-*
+  push:
     paths:
     - 'ersa/Containerfile'
+  workflow_dispatch:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
