@@ -4,6 +4,8 @@ on:
     tags:
     - fedora-coreos-*_zfs-*
   push:
+    branches:
+    - main 
     paths:
     - 'ersa/Containerfile'
   workflow_dispatch:
