@@ -17,7 +17,8 @@ jobs:
           # Tag-based build
           BASE_IMAGE="${GITHUB_REF_NAME%%_*}"
           BASE_IMAGE_VERSION="${BASE_IMAGE#fedora-coreos-}"
-          ZFS_VERSION="${GITHUB_REF_NAME#*zfs-}"
+          ZFS_PART="${GITHUB_REF_NAME#*zfs-}"
+          ZFS_VERSION="${ZFS_PART%%_*}"
           printf 'BUILD_ARGS<<EOF\nBASE_IMAGE_VERSION=%s\nZFS_VERSION=%s\nEOF\n' "$BASE_IMAGE_VERSION" "$ZFS_VERSION" >>"$GITHUB_OUTPUT"
         else
           # Path-based build - use latest versions
