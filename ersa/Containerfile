@@ -76,7 +76,8 @@ RUN rm --verbose --force \
 RUN rpm-ostree install -y \
     zsh \
     atuin \
-    podman-compose
+    podman-compose \
+    policycoreutils-python-utils
 
 RUN rm --recursive /var/cache 
 
